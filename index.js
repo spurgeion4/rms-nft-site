@@ -1,8 +1,7 @@
-'use strict';
+'use strict'
 
-var hasSymbols = require('has-symbols');
-
-/** @type {import('.')} */
-module.exports = function hasToStringTag() {
-	return hasSymbols() && typeof Symbol.toStringTag === 'symbol';
-};
+module.exports = {
+  SemVer: require('./semver.js'),
+  Range: require('./range.js'),
+  Comparator: require('./comparator.js'),
+}
