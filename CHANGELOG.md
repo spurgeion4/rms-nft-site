@@ -1,362 +1,613 @@
+# DocuSign Node Client Changelog
+See [DocuSign Support Center](https://support.docusign.com/en/releasenotes/) for Product Release Notes.
 
-2.6.9 / 2017-09-22
-==================
 
-  * remove ReDoS regexp in %o formatter (#504)
+## [v8.1.0] - eSignature API v2.1-25.1.00.02 - 2025-04-28
+### Changed
+- Added support for version v2.1-25.1.00.02 of the DocuSign ESignature API.
+- Updated the SDK release version.
 
-2.6.8 / 2017-05-18
-==================
+## [v8.1.0-rc1] - eSignature API v2.1-25.1.00.02 - 2025-04-14
+### Changed
+- Added support for version v2.1-25.1.00.02 of the DocuSign ESignature API.
+- Updated the SDK release version.
 
-  * Fix: Check for undefined on browser globals (#462, @marbemac)
+## [v8.0.1] - eSignature API v2.1-24.2.00.00 - 2024-08-22
+### Changed
+- Fixed issue with document downloads when `Content-Transfer-Encoding` is set to `base64`.
+- Updated the SDK release version.
 
-2.6.7 / 2017-05-16
-==================
+## [v8.0.0] - eSignature API v2.1-24.2.00.00 - 2024-07-25
+### Breaking Changes
 
-  * Fix: Update ms to 2.0.0 to fix regular expression denial of service vulnerability (#458, @hubdotcom)
-  * Fix: Inline extend function in node implementation (#452, @dougwilson)
-  * Docs: Fix typo (#455, @msasad)
+<details>
+<summary>API Changes (Click to expand)</summary>
 
-2.6.5 / 2017-04-27
-==================
-  
-  * Fix: null reference check on window.documentElement.style.WebkitAppearance (#447, @thebigredgeek)
-  * Misc: clean up browser reference checks (#447, @thebigredgeek)
-  * Misc: add npm-debug.log to .gitignore (@thebigredgeek)
+<div style="margin-left: 20px;">
 
+<br/>
+Added support for version v2.1-24.2.00.00 of the Docusign ESignature API.
 
-2.6.4 / 2017-04-20
-==================
+  ## Endpoint-Specific Changes
 
-  * Fix: bug that would occure if process.env.DEBUG is a non-string value. (#444, @LucianBuzzo)
-  * Chore: ignore bower.json in npm installations. (#437, @joaovieira)
-  * Misc: update "ms" to v0.7.3 (@tootallnate)
+  ### Updated [Envelopes: get](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/get/)
+  Added new optional query parameter named `include_anchor_tab_locations` of type string.
 
-2.6.3 / 2017-03-13
-==================
+  ### Updated [Envelopes: update](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/update/)
+  Added new optional query parameter named `recycle_on_void` of type string.
 
-  * Fix: Electron reference to `process.env.DEBUG` (#431, @paulcbetts)
-  * Docs: Changelog fix (@thebigredgeek)
+  ### Updated [EnvelopeViews : createCorrect](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopeviews/createcorrect/)
+  Request body object `correctViewRequest` has been changed to `envelopeViewRequest`.
 
-2.6.2 / 2017-03-10
-==================
+  ## Model Changes
 
-  * Fix: DEBUG_MAX_ARRAY_LENGTH (#420, @slavaGanzin)
-  * Docs: Add backers and sponsors from Open Collective (#422, @piamancini)
-  * Docs: Add Slackin invite badge (@tootallnate)
+  ### Updated existing models
 
-2.6.1 / 2017-02-10
-==================
+  ### `accountInformation`
 
-  * Fix: Module's `export default` syntax fix for IE8 `Expected identifier` error
-  * Fix: Whitelist DEBUG_FD for values 1 and 2 only (#415, @pi0)
-  * Fix: IE8 "Expected identifier" error (#414, @vgoma)
-  * Fix: Namespaces would not disable once enabled (#409, @musikov)
+  - **Added fields:**
+    - `freeEnvelopeSendsRemainingForAdvancedDocGen`
 
-2.6.0 / 2016-12-28
-==================
+  ### `accountSettingsInformation`
 
-  * Fix: added better null pointer checks for browser useColors (@thebigredgeek)
-  * Improvement: removed explicit `window.debug` export (#404, @tootallnate)
-  * Improvement: deprecated `DEBUG_FD` environment variable (#405, @tootallnate)
+  - **Added fields:**
+    - `defaultSigningResponsiveView`
+    - `defaultSigningResponsiveViewMetadata`
+    - `dss_SCOREFDN_196_Rebrand_DocuSignIsNotAVerb`
+    - `enableAdditionalAdvancedWebFormsFeatures`
+    - `enableAdditionalAdvancedWebFormsFeaturesMetadata`
 
-2.5.2 / 2016-12-25
-==================
+- **Removed fields:**
+    - `enableSaveAsEnvelopeCustomFieldInWebForms`
+    - `enableSaveAsEnvelopeCustomFieldInWebFormsMetadata`
 
-  * Fix: reference error on window within webworkers (#393, @KlausTrainer)
-  * Docs: fixed README typo (#391, @lurch)
-  * Docs: added notice about v3 api discussion (@thebigredgeek)
+### `bulksendingCopyDocGenFormField`
 
-2.5.1 / 2016-12-20
-==================
+- **Added field:**
+  - `rowValues`
 
-  * Fix: babel-core compatibility
+### `notaryRecipient`
 
-2.5.0 / 2016-12-20
-==================
+- **Added field:**
+  - `canNotaryCorrectEnvelope`
 
-  * Fix: wrong reference in bower file (@thebigredgeek)
-  * Fix: webworker compatibility (@thebigredgeek)
-  * Fix: output formatting issue (#388, @kribblo)
-  * Fix: babel-loader compatibility (#383, @escwald)
-  * Misc: removed built asset from repo and publications (@thebigredgeek)
-  * Misc: moved source files to /src (#378, @yamikuronue)
-  * Test: added karma integration and replaced babel with browserify for browser tests (#378, @yamikuronue)
-  * Test: coveralls integration (#378, @yamikuronue)
-  * Docs: simplified language in the opening paragraph (#373, @yamikuronue)
+### `tabAccountSettings`
 
-2.4.5 / 2016-12-17
-==================
+- **Added field:**
+  - `enableTabAgreementDetails`
+  - `enableTabAgreementDetailsMetadata`
 
-  * Fix: `navigator` undefined in Rhino (#376, @jochenberger)
-  * Fix: custom log function (#379, @hsiliev)
-  * Improvement: bit of cleanup + linting fixes (@thebigredgeek)
-  * Improvement: rm non-maintainted `dist/` dir (#375, @freewil)
-  * Docs: simplified language in the opening paragraph. (#373, @yamikuronue)
 
-2.4.4 / 2016-12-14
-==================
+### Newly added Models
 
-  * Fix: work around debug being loaded in preload scripts for electron (#368, @paulcbetts)
+- `bulkSendingCopyDocGenFormFieldRowValue`
 
-2.4.3 / 2016-12-14
-==================
-
-  * Fix: navigation.userAgent error for react native (#364, @escwald)
-
-2.4.2 / 2016-12-14
-==================
-
-  * Fix: browser colors (#367, @tootallnate)
-  * Misc: travis ci integration (@thebigredgeek)
-  * Misc: added linting and testing boilerplate with sanity check (@thebigredgeek)
-
-2.4.1 / 2016-12-13
-==================
-
-  * Fix: typo that broke the package (#356)
-
-2.4.0 / 2016-12-13
-==================
-
-  * Fix: bower.json references unbuilt src entry point (#342, @justmatt)
-  * Fix: revert "handle regex special characters" (@tootallnate)
-  * Feature: configurable util.inspect()`options for NodeJS (#327, @tootallnate)
-  * Feature: %O`(big O) pretty-prints objects (#322, @tootallnate)
-  * Improvement: allow colors in workers (#335, @botverse)
-  * Improvement: use same color for same namespace. (#338, @lchenay)
-
-2.3.3 / 2016-11-09
-==================
-
-  * Fix: Catch `JSON.stringify()` errors (#195, Jovan Alleyne)
-  * Fix: Returning `localStorage` saved values (#331, Levi Thomason)
-  * Improvement: Don't create an empty object when no `process` (Nathan Rajlich)
-
-2.3.2 / 2016-11-09
-==================
-
-  * Fix: be super-safe in index.js as well (@TooTallNate)
-  * Fix: should check whether process exists (Tom Newby)
-
-2.3.1 / 2016-11-09
-==================
-
-  * Fix: Added electron compatibility (#324, @paulcbetts)
-  * Improvement: Added performance optimizations (@tootallnate)
-  * Readme: Corrected PowerShell environment variable example (#252, @gimre)
-  * Misc: Removed yarn lock file from source control (#321, @fengmk2)
-
-2.3.0 / 2016-11-07
-==================
-
-  * Fix: Consistent placement of ms diff at end of output (#215, @gorangajic)
-  * Fix: Escaping of regex special characters in namespace strings (#250, @zacronos)
-  * Fix: Fixed bug causing crash on react-native (#282, @vkarpov15)
-  * Feature: Enabled ES6+ compatible import via default export (#212 @bucaran)
-  * Feature: Added %O formatter to reflect Chrome's console.log capability (#279, @oncletom)
-  * Package: Update "ms" to 0.7.2 (#315, @DevSide)
-  * Package: removed superfluous version property from bower.json (#207 @kkirsche)
-  * Readme: fix USE_COLORS to DEBUG_COLORS
-  * Readme: Doc fixes for format string sugar (#269, @mlucool)
-  * Readme: Updated docs for DEBUG_FD and DEBUG_COLORS environment variables (#232, @mattlyons0)
-  * Readme: doc fixes for PowerShell (#271 #243, @exoticknight @unreadable)
-  * Readme: better docs for browser support (#224, @matthewmueller)
-  * Tooling: Added yarn integration for development (#317, @thebigredgeek)
-  * Misc: Renamed History.md to CHANGELOG.md (@thebigredgeek)
-  * Misc: Added license file (#226 #274, @CantemoInternal @sdaitzman)
-  * Misc: Updated contributors (@thebigredgeek)
-
-2.2.0 / 2015-05-09
-==================
-
-  * package: update "ms" to v0.7.1 (#202, @dougwilson)
-  * README: add logging to file example (#193, @DanielOchoa)
-  * README: fixed a typo (#191, @amir-s)
-  * browser: expose `storage` (#190, @stephenmathieson)
-  * Makefile: add a `distclean` target (#189, @stephenmathieson)
-
-2.1.3 / 2015-03-13
-==================
-
-  * Updated stdout/stderr example (#186)
-  * Updated example/stdout.js to match debug current behaviour
-  * Renamed example/stderr.js to stdout.js
-  * Update Readme.md (#184)
-  * replace high intensity foreground color for bold (#182, #183)
-
-2.1.2 / 2015-03-01
-==================
-
-  * dist: recompile
-  * update "ms" to v0.7.0
-  * package: update "browserify" to v9.0.3
-  * component: fix "ms.js" repo location
-  * changed bower package name
-  * updated documentation about using debug in a browser
-  * fix: security error on safari (#167, #168, @yields)
-
-2.1.1 / 2014-12-29
-==================
-
-  * browser: use `typeof` to check for `console` existence
-  * browser: check for `console.log` truthiness (fix IE 8/9)
-  * browser: add support for Chrome apps
-  * Readme: added Windows usage remarks
-  * Add `bower.json` to properly support bower install
-
-2.1.0 / 2014-10-15
-==================
-
-  * node: implement `DEBUG_FD` env variable support
-  * package: update "browserify" to v6.1.0
-  * package: add "license" field to package.json (#135, @panuhorsmalahti)
-
-2.0.0 / 2014-09-01
-==================
-
-  * package: update "browserify" to v5.11.0
-  * node: use stderr rather than stdout for logging (#29, @stephenmathieson)
-
-1.0.4 / 2014-07-15
-==================
-
-  * dist: recompile
-  * example: remove `console.info()` log usage
-  * example: add "Content-Type" UTF-8 header to browser example
-  * browser: place %c marker after the space character
-  * browser: reset the "content" color via `color: inherit`
-  * browser: add colors support for Firefox >= v31
-  * debug: prefer an instance `log()` function over the global one (#119)
-  * Readme: update documentation about styled console logs for FF v31 (#116, @wryk)
-
-1.0.3 / 2014-07-09
-==================
-
-  * Add support for multiple wildcards in namespaces (#122, @seegno)
-  * browser: fix lint
-
-1.0.2 / 2014-06-10
-==================
-
-  * browser: update color palette (#113, @gscottolson)
-  * common: make console logging function configurable (#108, @timoxley)
-  * node: fix %o colors on old node <= 0.8.x
-  * Makefile: find node path using shell/which (#109, @timoxley)
-
-1.0.1 / 2014-06-06
-==================
-
-  * browser: use `removeItem()` to clear localStorage
-  * browser, node: don't set DEBUG if namespaces is undefined (#107, @leedm777)
-  * package: add "contributors" section
-  * node: fix comment typo
-  * README: list authors
-
-1.0.0 / 2014-06-04
-==================
-
-  * make ms diff be global, not be scope
-  * debug: ignore empty strings in enable()
-  * node: make DEBUG_COLORS able to disable coloring
-  * *: export the `colors` array
-  * npmignore: don't publish the `dist` dir
-  * Makefile: refactor to use browserify
-  * package: add "browserify" as a dev dependency
-  * Readme: add Web Inspector Colors section
-  * node: reset terminal color for the debug content
-  * node: map "%o" to `util.inspect()`
-  * browser: map "%j" to `JSON.stringify()`
-  * debug: add custom "formatters"
-  * debug: use "ms" module for humanizing the diff
-  * Readme: add "bash" syntax highlighting
-  * browser: add Firebug color support
-  * browser: add colors for WebKit browsers
-  * node: apply log to `console`
-  * rewrite: abstract common logic for Node & browsers
-  * add .jshintrc file
-
-0.8.1 / 2014-04-14
-==================
-
-  * package: re-add the "component" section
-
-0.8.0 / 2014-03-30
-==================
-
-  * add `enable()` method for nodejs. Closes #27
-  * change from stderr to stdout
-  * remove unnecessary index.js file
-
-0.7.4 / 2013-11-13
-==================
-
-  * remove "browserify" key from package.json (fixes something in browserify)
-
-0.7.3 / 2013-10-30
-==================
-
-  * fix: catch localStorage security error when cookies are blocked (Chrome)
-  * add debug(err) support. Closes #46
-  * add .browser prop to package.json. Closes #42
-
-0.7.2 / 2013-02-06
-==================
-
-  * fix package.json
-  * fix: Mobile Safari (private mode) is broken with debug
-  * fix: Use unicode to send escape character to shell instead of octal to work with strict mode javascript
-
-0.7.1 / 2013-02-05
-==================
-
-  * add repository URL to package.json
-  * add DEBUG_COLORED to force colored output
-  * add browserify support
-  * fix component. Closes #24
-
-0.7.0 / 2012-05-04
-==================
-
-  * Added .component to package.json
-  * Added debug.component.js build
-
-0.6.0 / 2012-03-16
-==================
-
-  * Added support for "-" prefix in DEBUG [Vinay Pulim]
-  * Added `.enabled` flag to the node version [TooTallNate]
-
-0.5.0 / 2012-02-02
-==================
-
-  * Added: humanize diffs. Closes #8
-  * Added `debug.disable()` to the CS variant
-  * Removed padding. Closes #10
-  * Fixed: persist client-side variant again. Closes #9
-
-0.4.0 / 2012-02-01
-==================
-
-  * Added browser variant support for older browsers [TooTallNate]
-  * Added `debug.enable('project:*')` to browser variant [TooTallNate]
-  * Added padding to diff (moved it to the right)
-
-0.3.0 / 2012-01-26
-==================
-
-  * Added millisecond diff when isatty, otherwise UTC string
-
-0.2.0 / 2012-01-22
-==================
-
-  * Added wildcard support
-
-0.1.0 / 2011-12-02
-==================
-
-  * Added: remove colors unless stderr isatty [TooTallNate]
-
-0.0.1 / 2010-01-03
-==================
-
-  * Initial release
+</div>
+</details>
+
+
+### Other Changes
+- Converted `defaultHeaders` from a shared global state to a local state within each `ApiClient` instance.
+- Fixed the overriding of the Authorization header in `GetUserInfo` when `defaultHeaders` already had an Authorization header.
+- Updated the SDK release version.
+
+## [v8.0.0-rc2] - eSignature API v2.1-24.2.00.00 - 2024-07-19
+### Changed
+- Converted `defaultHeaders` from a shared global state to a local state within each `ApiClient` instance.
+- Fixed the overriding of the Authorization header in `GetUserInfo` when `defaultHeaders` already had an Authorization header.
+- Updated the SDK release version.
+## [v8.0.0-rc1] - eSignature API v2.1-24.2.00.00 - 2024-07-02
+### Breaking Changes
+
+<details>
+<summary>API Changes (Click to expand)</summary>
+
+<div style="margin-left: 20px;">
+
+<br/>
+Added support for version v2.1-24.2.00.00 of the Docusign ESignature API.
+
+  ## Endpoint-Specific Changes
+
+  ### Updated [Envelopes: get](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/get/)
+  Added new optional query parameter named `include_anchor_tab_locations` of type string.
+
+  ### Updated [Envelopes: update](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/update/)
+  Added new optional query parameter named `recycle_on_void` of type string.
+
+  ### Updated [EnvelopeViews : createCorrect](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopeviews/createcorrect/)
+  Request body object `correctViewRequest` has been changed to `envelopeViewRequest`.
+
+  ## Model Changes
+
+  ### Updated existing models
+
+  ### `accountInformation`
+
+  - **Added fields:**
+    - `freeEnvelopeSendsRemainingForAdvancedDocGen`
+
+  ### `accountSettingsInformation`
+
+  - **Added fields:**
+    - `defaultSigningResponsiveView`
+    - `defaultSigningResponsiveViewMetadata`
+    - `dss_SCOREFDN_196_Rebrand_DocuSignIsNotAVerb`
+    - `enableAdditionalAdvancedWebFormsFeatures`
+    - `enableAdditionalAdvancedWebFormsFeaturesMetadata`
+
+- **Removed fields:**
+    - `enableSaveAsEnvelopeCustomFieldInWebForms`
+    - `enableSaveAsEnvelopeCustomFieldInWebFormsMetadata`
+
+### `bulksendingCopyDocGenFormField`
+
+- **Added field:**
+  - `rowValues`
+
+### `notaryRecipient`
+
+- **Added field:**
+  - `canNotaryCorrectEnvelope`
+
+### `tabAccountSettings`
+
+- **Added field:**
+  - `enableTabAgreementDetails`
+  - `enableTabAgreementDetailsMetadata`
+
+
+### Newly added Models
+
+- `bulkSendingCopyDocGenFormFieldRowValue`
+
+</div>
+</details>
+
+### Other Changes
+- Updated the SDK release version.
+
+
+## [v7.0.2] - eSignature API v2.1-24.1.01.00 - 2024-06-06
+### Changed
+- Resolved an issue with the PDF download logic that caused corrupted data.
+## [v7.0.1] - eSignature API v2.1-24.1.01.00 - 2024-05-24
+## Resolved "Generate Access Token SDK Method is broken since most recent RC Version"
+## [v7.0.0] - eSignature API v2.1-24.1.01.00 - 2024-05-22
+## Endpoint-Specific Changes
+
+### Updated [EnvelopeRecipients: createRecipientProofFileResourceToken](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipients/createrecipientprooffileresourcetoken/)
+The `"token_scopes"` parameter has been moved from path parameters to query parameters for the above mentioned endpoint.
+
+### Updated [EnvelopeView:CreateSender](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopeviews/createsender/) and [EnvelopeView:CreateEdit](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopeviews/createedit/)
+The body parameter `returnUrlRequest` has been changed to `envelopeViewRequest`.
+`envelopeViewRequest` has the same properties as the previous `returnUrlRequest` but now includes additional `viewAccess` and `settings` properties, where settings is a complex object with several UI controls for the view experience.
+
+### Updated [TemplateViews: createEdit](https://developers.docusign.com/docs/esign-rest-api/reference/templates/templateviews/createedit/)
+The body parameter `returnUrlRequest` has been changed to `templateViewRequest`.
+`templateViewRequest` has the same properties as the previous `returnUrlRequest` but now includes an additional `viewAccess` string.
+
+## Model Changes
+
+- Updated existing models
+
+### `accountSettingsInformation`
+
+- **Added fields:**
+  - `allowConnectEnvelopeRemovedEvent`
+  - `allowOrganizationBranding`
+  - `allowOrganizationBrandingMetadata`
+  - `allowPendingDestinationUrlEdition`
+  - `allowPendingDestinationUrlEditionMetadata`
+  - `disableBulkSendRecipientLimit`
+  - `disableBulkSendRecipientLimitMetaData`
+  - `enableAdvancedSearch`
+  - `enableAdvancedSearchMetadata`
+  - `enableContentSearch`
+  - `enableContentSearchMetadata`
+  - `enableMultiUserRepositoryFeatures`
+  - `enableMultiUserRepositoryFeaturesMetadata`
+  - `enablePremiumDataVerificationExtensions`
+  - `enablePremiumDataVerificationExtensionsMetadata`
+  - `enableSaveAsEnvelopeCustomFieldInWebForms`
+  - `enableSaveAsEnvelopeCustomFieldInWebFormsMetadata`
+  - `enableScheduledRelease`
+  - `enableScheduledReleaseMetadata`
+  - `isvOemEmbed`
+  - `isvOemEmbedMetaData`
+
+- **Removed fields:**
+  - `enableInboxRelevanceSortForRecentAccounts`
+  - `enableInboxRelevanceSortForRecentAccountsMetadata`
+  - `enableScheduledRelease`
+  - `enableScheduledReleaseMetadata`
+  - `enableSearch`
+  - `enableSearchMetadata`
+  - `enableSearchUI`
+  - `enableSearchUIMetadata`
+
+### `accountUISettings`
+
+- **Added fields:**
+  - `enableEnvelopeTypes`
+  - `enableEnvelopeTypesMetadata`
+
+### `envelopDefinitions`
+
+- **Added field:**
+  - `uSigState`
+
+### `envelopTemplate`
+
+- **Added field:**
+  - `uSigState`
+
+### `group`
+
+- **Added property:**
+  - `lastModifiedOn`
+
+### `receipientViewRequest`
+
+- **Added property:**
+  - `displayFormat`
+
+### `userSettingsInformation`
+
+- **Added properties:**
+  - `accountAgreementsAccessType`
+  - `accountAgreementsAccessTypeMetadata`
+  - `canBulkUploadAgreements`
+  - `canBulkUploadAgreementsMetadata`
+  - `canManageAgreementParties`
+  - `canManageAgreementPartiesMetadata`
+
+### Newly added Models
+
+- `envelopeViewDocumentSettings`
+- `envelopeViewEnvelopeCustomFieldSettings`
+- `envelopeViewRecipientSettings`
+- `envelopeViewRequest`
+- `envelopeViewSettings`
+- `envelopeViewTaggerSettings`
+- `envelopeViewTemplateSettings`
+- `paletteItemSettings`
+- `paletteSettings`
+- `templateViewRequest`
+
+### Removed Models
+- `returnUrlRequest`
+
+## [v7.0.0-rc1] - eSignature API v2.1-24.1.01.00 - 2024-05-03
+### Changed
+- Added support for version v2.1-24.1.01.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.6.0-rc2] - eSignature API v2.1-23.4.02.00 - 2024-03-19
+### Changed
+- Substituted the superagent proxy with Axios 1.6.8, addressing security vulnerabilities.
+- Updated the SDK release version.
+
+## [v6.6.0-rc1] - eSignature API v2.1-23.4.02.00 - 2024-03-12
+### Changed
+- Added user-generated JWT assertion support via sendJWTTokenRequest.
+- Added support for version v2.1-23.4.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.5.1] - eSignature API v2.1-23.3.01.02 - 2023-11-15
+### Changed
+- Rolled back the superagent-proxy package version from 3.0.0 to 2.0.0
+- Updated the SDK release version.
+
+## [v6.5.0] - eSignature API v2.1-23.3.01.02 - 2023-10-25
+### Changed
+- Added support for version v2.1-23.3.01.02 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.4.0] - eSignature API v2.1-23.3.00.01 - 2023-08-30
+### Changed
+- Added support for version v2.1-23.3.00.01 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.3.0] - eSignature API v2.1-23.2.00.00 - 2023-05-15
+### Changed
+- Added support for version v2.1-23.2.00.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.2.0] - eSignature API v2.1-23.1.01.01 - 2023-04-05
+### Changed
+- Added support for version v2.1-23.1.01.01 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.1.0] - eSignature API v2.1-22.4.02.00 - 2023-02-02
+### Changed
+- Added support for version v2.1-22.4.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v6.0.0] - eSignature API v2.1-22.3.01.00 - 2023-01-23
+### Breaking 
+  - Deprecating Node versions <12
+### Security
+  - Update jsonwebtoken package to 9.0.0 addressing CVE-2022-23529
+## [v5.20.0] - eSignature API v2.1-22.3.01.00 - 2022-11-22
+### Changed
+- Added support for version v2.1-22.3.01.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.19.0] - eSignature API v2.1-22.3.00.00 - 2022-09-07
+### Changed
+- Added support for version v2.1-22.3.00.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.18.0] - eSignature API v2.1-22.2.00.00 - 2022-06-23
+### Changed
+- Added support for version v2.1-22.2.00.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.17.0] - eSignature API v2.1-22.1.02.00 - 2022-05-18
+### Changed
+- Added support for version v2.1-22.1.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.16.0] - eSignature API v2.1-22.1.01.00 - 2022-04-07
+### Changed
+- Added support for version v2.1-22.1.01.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+### Breaking
+- Following models are renamed
+
+    - `ScheduledSendingApiModel` is renamed to `ScheduledSending`
+    - `DelayedRoutingApiModel` is renamed to `DelayedRouting`
+
+## [v5.15.0] - eSignature API v2.1-21.4.02.00 - 2022-02-08
+### Changed
+- Added support for version v2.1-21.4.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.14.0] - eSignature API v2.1-21.4.01.00 - 2022-01-06
+### Changed
+- Added support for version v2.1-21.4.01.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.14.0-rc1] - eSignature API v2.1-21.4.00.00 - 2021-12-13
+### Changed
+- Added support for version v2.1-21.4.00.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+### Security
+- Version bump for passport-oauth2: [CVE-2021-41580](https://nvd.nist.gov/vuln/detail/CVE-2021-41580).
+
+## [5.13.0] - ESignature API v2.1-21.3.02.00 - 2021-10-29
+### Changed
+- Added support for version v2.1-21.3.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+
+## [5.13.0-rc1] - ESignature API v2.1-21.3.00.00 - 2021-09-20
+### Changed
+- Added support for version v2.1-21.3.00.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+
+## [v5.12.0] - ESignature API v2.1-21.2.02.00 - 2021-09-02
+### Changed
+- Added support for version v2.1-21.2.02.00 of the DocuSign ESignature API.
+- Updated the SDK release version.
+
+## [v5.11.1] - eSignature API v2.1-21.2.00.00 - 2021-07-29
+### Changed
+- Updated Get Form Data unit test.
+- Updated Travis-CI badge in README.md
+
+## [v5.11.0] - eSignature API v2.1-21.2.00.00
+### Changed
+- Added support for version v2.1-21.2.00.00 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.10.0] - eSignature API v2.1-21.1.02.00
+### Breaking
+- Removed methods `getAccountSettingsExport`,`getSealProviders` from Accounts.
+- Removed methods `createConnectSecret`,`deleteConnectSecret`,`generateConnectSecret`,`getConnectSecrets` from Connect.
+- Removed methods `getDynamicSystemSettings`,`getTemplateInfo`,`getApplianceInfo`,`getAccount`,`getCustomFields`,`deleteCustomFieldsV2`,`getDocumentPages`,`getImage`,`getLocalePolicy`,`updatePageInfo`,`createPageInfo`,`deletePageInfo`,`updatePdf`,`getPdf`,`getPdfBlob`,`updatePdfBlob`,`createPdfBlob`,`updateRecipientDeniedDocumentCopy`,`deleteRecipientDeniedDocumentCopy`,`getSignerAttachment`,`deleteSignerAttachment`, from Envelopes.
+- Removed methods `completeSignHash`,`getUserInfo`,`healthCheck`,`signHashSessionInfo`,`updateTransaction` from TrustServiceProviders.
+- Removed methods `getUserListExport` from Users.
+
+### Added
+- Added new methods `getBulkSendBatchEnvelopes` to BulkEnvelopes.
+
+### Changed
+- Added support for version v2.1-21.1.02.00 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.9.0] - eSignature API v2.1-21.1.01.03
+### Changed
+- Added support for version v2.1-21.1.01.03 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.8.1] - eSignature API v2.1-20.3.01
+### Changed
+- Added support for version v2.1-20.3.01 of the DocuSign eSignature API.
+- Updated the SDK release version.
+### Fixed 
+- DCM-3866, Added support for updateBrandResourcesByContentType function to take in file to upload.
+- DCM-3369, Updated ApiClient to use an empty JSON object if the body is null.
+- DCM-4614, Fixed out of memory issue when deserializing large files.
+
+## [v5.7.0] - eSignature API v2.1-20.3.00
+### Changed
+- Added support for version v2.1-20.3.00 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.6.0] - eSignature API v2.1-20.2.02.02
+### Changed
+- Added support for version v2.1-20.2.02.02 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.5.0] - eSignature API v2.1-20.2.00
+### Changed
+- Added support for version v2.1-20.2.00 of the DocuSign eSignature API.
+- Updated the SDK release version.
+- Added properties `batchSize`, `queueLimit`, and `totalQueued` to bulk send response.
+
+## [v5.4.0] - eSignature API v2.1-20.1.02
+### Changed
+- Added support for version v2.1-20.1.02 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+## [v5.3.0] - eSignature API v2.1-20.1.00
+### Changed
+
+- Added support for version v2.1-20.1.00 of the DocuSign eSignature API.
+- Updated the SDK release version.
+
+### Added
+
+- Added the new property `copyRecipientData` to envelopes. When set to **true**, the information that recipients enter is retained when you clone an envelope. For example, if you resend an envelope that was declined or voided after one or more recipients entered data, that data is retained. Note that the new account UI setting `enableEnvelopeCopyWithData` must be enabled for the account.
+- Added `RecipientIdentityInputOption` and `inputOptions` to `RecipientIdentityVerification.js`: Reserved for DocuSign.
+
+### Deleted
+
+- Deleted the GET methods for account seals providers, which returned the seals for an account.
+
+## [v5.2.0] - eSignature API v2.1-19.4.01
+### Changed
+- The SDK now supports version 19.4.01 of the DocuSign eSignature API.
+- SDK Release Version updated.
+
+## [v5.1.0] - eSignature API v2.1-19.2.02
+### Changed
+- The SDK now supports version 19.2.02 of the DocuSign eSignature API.
+- SDK Release Version updated.
+
+## [v5.0.2] - 2019-07-12
+### Security
+- [CVE-2019-10744](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10744).
+
+## [v5.0.1] - 2019-06-25
+### Removed
+- Removed hardcoded test config values from test cases. Config values are now being read from env variables.
+
+## [v5.0.0] - eSignature API v2.1-19.1.02
+### BREAKING
+- The SDK now supports version v2.1-19.1.02 of the DocuSign eSignature API.
+- SDK Release Version updated.
+
+## [v4.3.0] - eSignature API v19.1.02
+### Changed
+- The SDK now supports version 19.1.02 of the DocuSign eSignature API.
+- SDK Release Version updated.
+### Added
+- Cache-control and Pragma headers to the oAuth calls. (DCM-2244)
+- *tabGroupLabels* field to all Tabs models
+- Witnesses field to all Recipients models
+- Models for Smart Sections feature
+- Initial support of HMAC to DocuSign Connect
+### Fixed
+- A bug where API response for 'moveEnvelopes' was improperly documented as a non-undefined value. (DCM-3085)
+- A bug where dateTabs and numberTabs were not being able to be initialized by the docusign.Tabs object. (DCM-3226)
+ 
+##[v4.2.2] eSignature API v18.4.02
+### Added
+- Support for the **latest DocuSign API** (18.4.02.00).
+
+### Updated
+- updateBrandLogoByType, which enables you to upload a brand logo.
+
+##[v4.2.0] eSignature API v18.3.02
+### Fixed
+-	Fixed a problem with the BulkEnvelopesApi.UpdateRecipients() method that could cause it to return a "Value cannot be null.\r\nParameter name: stream" error rather than add bulk recipients to an envelope. (DCM-2957)
+-	Fixed a problem with the EnvelopesApi.listStatus methods that could cause them to ignore sets of envelope IDs passed in to get statuses for specific envelopes. (DCM-2956)
+-	Fixes a a typo in a an ApiClient dependency "Oauth.js" to "OAuth.js". (DCM-3021)
+### Changed
+-	The SDK now supports version 18.3.02 of the DocuSign eSignature API.
+### Added
+-	Node SDK methods have been updated to use a promise pattern. The methods will return promise objects, which represent the eventual completed output of the method, unless a specific callback is provided in the method call. (DCM-2204)
+
+## [v4.1.0] - eSignature API v18.3.00 - 9/13/2018
+### Changed
+- The `getOAuthBasePath()` method is now an accessor function for the new `oAuthBasePath` property, rather than being derived from `basePath`.
+- Updated the swagger spec to version 18.3.00.00
+### Added
+-	Created a new `ApiClient` property, `oAuthBasePath`. This property is retrieved using `getOAuthBasePath()` and set by **setOAuthBasePath()**. DCM-2834
+-	Created a new `docusign.ApiClient.OAuth.BasePath` collection that holds base path data for the following environments: `STAGE, DEMO, PRODUCTION`.
+-	Created a new `docusign.ApiClient.RestApi.BasePath` collection that holds rest API base paths for the following environments: `STAGE, DEMO, PRODUCTION`.	These recorded path values can be accessed using an instantiated `docusign.apiClient` object.
+-	Added an `opts` parameter that allows you to specify parameter values when instantiating an `apiClient`. The `opts` parameter currently supports passing in `basePath` and `oAuthBasePath` values. If not set during instantiation of an `apiClient`, they default to their production values.
+- An	`Organization` value has been added to the account model. DCM-2710
+### Deprecated
+- The `configureJWTAuthorizationFlow` method is now deprecated. Please use `requestJWTUserToken` instead, which takes the private key as byte array or a Stream. DCM-2765
+
+## [v4.0.2] - eSignature API v18.1.02 - 7/3/2018
+### Changed
+- All SDK methods have been updated such that the `opts` parameter may now contain the callback, making the other opts parameters optional, and it has been renamed `optsOrCallback`. 
+This resolves the breaking change for applications upgrading from version 3.X.X to 4.X.X.
+- The OAuth authorization code grant and implicit grant code examples in the readme.md file have been updated to use the addDefaultHeader method. Each API client needs this header to access DocuSign APIs.
+ 
+## [4.0.1] - 2018-06-25
+### Fixed
+- Issues [`#101`](https://github.com/docusign/DocuSign-Node-Client/issues/101) and [`#66`](https://github.com/docusign/DocuSign-Node-Client/issues/66)
+- listTabs now maps to an array of List instead of array of Array
+ 
+## [4.0.0] - 2018-06-06
+### BREAKING
+- This update has some breaking changes as certain api calls no longer accept query parameters. 
+- Due to this, their respective SDK method signatures of changed
+For example:
+  - EnvelopesApi.listDocuments(accountId, envelopeId, opts, callback) 
+  - has changed to:
+  - EnvelopesApi.listDocuments(accountId, envelopeId, callback) 
+
+### Changed
+- Updated the package with the latest API release.
+
+## [3.3.0] - 2018-06-04
+### Added
+- Support for OAuth Implicit Grant.
+- Support for OAuth Get Use Info.
+
+## [3.2.0] - 2017-08-01
+### Added
+- Support for DocuSign JWT OAuth for service integration (2-legged authentication)
+ 
+## [3.1.0] - 2017-06-17
+### Added
+- Support for DocuSign OAuth
+
+## [3.0.0] - 2017-03-10
+### BREAKING
+- The SDK now supports the**Full and latest DocuSign API support**(17.1.00.00). NO MORE OMITTED ENDPOINTS.
+- **Getter and setter methods of all models' fields were removed.** Direct access to models' fields is now required. See the code snippet in README.md and test/SdkUnitTests.js for example.
+- Added optional `opts` to several methods across different APIs. Old client code might need to be updated prior to using 3.0.0 and above.
+- Methods that accept optional parameters, defined as `opts`, now accept plain javascript objects only. For instance AuthenticationApi.login({'api_password': true}) will return a fake password that can be used in subsequent API calls instead of the original password.
+
+### Removed
+- All Optional data structures that were used as optional parameters for some API methods (in the form of**Docusign.XxxApi.doSomethingOptions**). Use javascript plain objects instead.
+
+### Added
+- **Complete and proper SDK [Documentation](http://docusign.github.io/docusign-node-client/module-index.html), including detailed information and links about all modules and methods of the SDK.**
+- New test case: create a DocuSign template.
+
+### Fixed
+- Issue [`#52`](https://github.com/docusign/DocuSign-Node-Client/issues/52): TypeError: self.envelopeTemplateDefinition.constructFromObject is not a function.
+
+### Changed
+- Updated the package with the latest API release.
+
+## [2.1.0] - 2017-01-24
+### Added
+- Documentation about several Authentication methods supported by DocuSign API.
+- Changelog to keep track of release highlights.
+### Changed
+- Support for DocuSign Core release 16.1.00.00.
+- Code snippet to use base URL from the login call. Required for integrations when they go live.
+
+### Fixed
+- Issue [`#47`](https://github.com/docusign/DocuSign-Node-Client/issues/47): Some DocuSign API calls don't like null as object property value.
+
+## [2.0.3] - 2016-03-23
+### Added
+- TravisCI automatic testing.
+
+### Changed
+- Updated the package to a newer API release.
+- Switched to MIT license.
+- Updated documentation on README.
