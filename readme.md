@@ -1,25 +1,70 @@
-# binary-extensions
+# has-flag [![Build Status](https://travis-ci.org/sindresorhus/has-flag.svg?branch=master)](https://travis-ci.org/sindresorhus/has-flag)
 
-> List of binary file extensions
+> Check if [`argv`](https://nodejs.org/docs/latest/api/process.html#process_process_argv) has a specific flag
 
-The list is just a [JSON file](binary-extensions.json) and can be used anywhere.
+Correctly stops looking after an `--` argument terminator.
+
 
 ## Install
 
-```sh
-npm install binary-extensions
 ```
+$ npm install has-flag
+```
+
 
 ## Usage
 
 ```js
-const binaryExtensions = require('binary-extensions');
+// foo.js
+const hasFlag = require('has-flag');
 
-console.log(binaryExtensions);
-//=> ['3ds', '3g2', …]
+hasFlag('unicorn');
+//=> true
+
+hasFlag('--unicorn');
+//=> true
+
+hasFlag('f');
+//=> true
+
+hasFlag('-f');
+//=> true
+
+hasFlag('foo=bar');
+//=> true
+
+hasFlag('foo');
+//=> false
+
+hasFlag('rainbow');
+//=> false
 ```
 
-## Related
+```
+$ node foo.js -f --unicorn --foo=bar -- --rainbow
+```
 
-- [is-binary-path](https://github.com/sindresorhus/is-binary-path) - Check if a filepath is a binary file
-- [text-extensions](https://github.com/sindresorhus/text-extensions) - List of text file extensions
+
+## API
+
+### hasFlag(flag, [argv])
+
+Returns a boolean for whether the flag exists.
+
+#### flag
+
+Type: `string`
+
+CLI flag to look for. The `--` prefix is optional.
+
+#### argv
+
+Type: `string[]`<br>
+Default: `process.argv`
+
+CLI arguments.
+
+
+## License
+
+MIT © [Sindre Sorhus](https://sindresorhus.com)
