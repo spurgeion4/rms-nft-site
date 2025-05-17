@@ -1,0 +1,28 @@
+# Netlify Configuration File
+
+# Build settings
+[build]
+  # Directory with the built frontend (React app)
+  publish = "frontend/build"
+  # Build command for the frontend
+  command = "cd frontend && npm install && npm run build"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Proxy API requests to backend (if using Netlify Functions)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Headers to allow CORS
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept"
