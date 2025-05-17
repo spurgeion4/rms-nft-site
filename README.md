@@ -1,142 +1,312 @@
-# content-disposition
+# debug
+[![Build Status](https://travis-ci.org/visionmedia/debug.svg?branch=master)](https://travis-ci.org/visionmedia/debug)  [![Coverage Status](https://coveralls.io/repos/github/visionmedia/debug/badge.svg?branch=master)](https://coveralls.io/github/visionmedia/debug?branch=master)  [![Slack](https://visionmedia-community-slackin.now.sh/badge.svg)](https://visionmedia-community-slackin.now.sh/) [![OpenCollective](https://opencollective.com/debug/backers/badge.svg)](#backers) 
+[![OpenCollective](https://opencollective.com/debug/sponsors/badge.svg)](#sponsors)
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-version-image]][node-version-url]
-[![Build Status][github-actions-ci-image]][github-actions-ci-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
 
-Create and parse HTTP `Content-Disposition` header
+
+A tiny node.js debugging utility modelled after node core's debugging technique.
+
+**Discussion around the V3 API is under way [here](https://github.com/visionmedia/debug/issues/370)**
 
 ## Installation
 
-```sh
-$ npm install content-disposition
+```bash
+$ npm install debug
 ```
 
-## API
+## Usage
+
+`debug` exposes a function; simply pass this function the name of your module, and it will return a decorated version of `console.error` for you to pass debug statements to. This will allow you to toggle the debug output for different parts of your module as well as the module as a whole.
+
+Example _app.js_:
 
 ```js
-var contentDisposition = require('content-disposition')
+var debug = require('debug')('http')
+  , http = require('http')
+  , name = 'My App';
+
+// fake app
+
+debug('booting %s', name);
+
+http.createServer(function(req, res){
+  debug(req.method + ' ' + req.url);
+  res.end('hello\n');
+}).listen(3000, function(){
+  debug('listening');
+});
+
+// fake worker of some kind
+
+require('./worker');
 ```
 
-### contentDisposition(filename, options)
-
-Create an attachment `Content-Disposition` header value using the given file name,
-if supplied. The `filename` is optional and if no file name is desired, but you
-want to specify `options`, set `filename` to `undefined`.
+Example _worker.js_:
 
 ```js
-res.setHeader('Content-Disposition', contentDisposition('∫ maths.pdf'))
+var debug = require('debug')('worker');
+
+setInterval(function(){
+  debug('doing some work');
+}, 1000);
 ```
 
-**note** HTTP headers are of the ISO-8859-1 character set. If you are writing this
-header through a means different from `setHeader` in Node.js, you'll want to specify
-the `'binary'` encoding in Node.js.
+ The __DEBUG__ environment variable is then used to enable these based on space or comma-delimited names. Here are some examples:
 
-#### Options
+  ![debug http and worker](http://f.cl.ly/items/18471z1H402O24072r1J/Screenshot.png)
 
-`contentDisposition` accepts these properties in the options object.
+  ![debug worker](http://f.cl.ly/items/1X413v1a3M0d3C2c1E0i/Screenshot.png)
 
-##### fallback
+#### Windows note
 
-If the `filename` option is outside ISO-8859-1, then the file name is actually
-stored in a supplemental field for clients that support Unicode file names and
-a ISO-8859-1 version of the file name is automatically generated.
+ On Windows the environment variable is set using the `set` command.
 
-This specifies the ISO-8859-1 file name to override the automatic generation or
-disables the generation all together, defaults to `true`.
+ ```cmd
+ set DEBUG=*,-not_this
+ ```
 
-  - A string will specify the ISO-8859-1 file name to use in place of automatic
-    generation.
-  - `false` will disable including a ISO-8859-1 file name and only include the
-    Unicode version (unless the file name is already ISO-8859-1).
-  - `true` will enable automatic generation if the file name is outside ISO-8859-1.
+ Note that PowerShell uses different syntax to set environment variables.
 
-If the `filename` option is ISO-8859-1 and this option is specified and has a
-different value, then the `filename` option is encoded in the extended field
-and this set as the fallback field, even though they are both ISO-8859-1.
+ ```cmd
+ $env:DEBUG = "*,-not_this"
+  ```
 
-##### type
+Then, run the program to be debugged as usual.
 
-Specifies the disposition type, defaults to `"attachment"`. This can also be
-`"inline"`, or any other value (all values except inline are treated like
-`attachment`, but can convey additional information if both parties agree to
-it). The type is normalized to lower-case.
+## Millisecond diff
 
-### contentDisposition.parse(string)
+  When actively developing an application it can be useful to see when the time spent between one `debug()` call and the next. Suppose for example you invoke `debug()` before requesting a resource, and after as well, the "+NNNms" will show you how much time was spent between calls.
+
+  ![](http://f.cl.ly/items/2i3h1d3t121M2Z1A3Q0N/Screenshot.png)
+
+  When stdout is not a TTY, `Date#toUTCString()` is used, making it more useful for logging the debug information as shown below:
+
+  ![](http://f.cl.ly/items/112H3i0e0o0P0a2Q2r11/Screenshot.png)
+
+## Conventions
+
+  If you're using this in one or more of your libraries, you _should_ use the name of your library so that developers may toggle debugging as desired without guessing names. If you have more than one debuggers you _should_ prefix them with your library name and use ":" to separate features. For example "bodyParser" from Connect would then be "connect:bodyParser".
+
+## Wildcards
+
+  The `*` character may be used as a wildcard. Suppose for example your library has debuggers named "connect:bodyParser", "connect:compress", "connect:session", instead of listing all three with `DEBUG=connect:bodyParser,connect:compress,connect:session`, you may simply do `DEBUG=connect:*`, or to run everything using this module simply use `DEBUG=*`.
+
+  You can also exclude specific debuggers by prefixing them with a "-" character.  For example, `DEBUG=*,-connect:*` would include all debuggers except those starting with "connect:".
+
+## Environment Variables
+
+  When running through Node.js, you can set a few environment variables that will
+  change the behavior of the debug logging:
+
+| Name      | Purpose                                         |
+|-----------|-------------------------------------------------|
+| `DEBUG`   | Enables/disables specific debugging namespaces. |
+| `DEBUG_COLORS`| Whether or not to use colors in the debug output. |
+| `DEBUG_DEPTH` | Object inspection depth. |
+| `DEBUG_SHOW_HIDDEN` | Shows hidden properties on inspected objects. |
+
+
+  __Note:__ The environment variables beginning with `DEBUG_` end up being
+  converted into an Options object that gets used with `%o`/`%O` formatters.
+  See the Node.js documentation for
+  [`util.inspect()`](https://nodejs.org/api/util.html#util_util_inspect_object_options)
+  for the complete list.
+
+## Formatters
+
+
+  Debug uses [printf-style](https://wikipedia.org/wiki/Printf_format_string) formatting. Below are the officially supported formatters:
+
+| Formatter | Representation |
+|-----------|----------------|
+| `%O`      | Pretty-print an Object on multiple lines. |
+| `%o`      | Pretty-print an Object all on a single line. |
+| `%s`      | String. |
+| `%d`      | Number (both integer and float). |
+| `%j`      | JSON. Replaced with the string '[Circular]' if the argument contains circular references. |
+| `%%`      | Single percent sign ('%'). This does not consume an argument. |
+
+### Custom formatters
+
+  You can add custom formatters by extending the `debug.formatters` object. For example, if you wanted to add support for rendering a Buffer as hex with `%h`, you could do something like:
 
 ```js
-var disposition = contentDisposition.parse('attachment; filename="EURO rates.txt"; filename*=UTF-8\'\'%e2%82%ac%20rates.txt')
+const createDebug = require('debug')
+createDebug.formatters.h = (v) => {
+  return v.toString('hex')
+}
+
+// …elsewhere
+const debug = createDebug('foo')
+debug('this is hex: %h', new Buffer('hello world'))
+//   foo this is hex: 68656c6c6f20776f726c6421 +0ms
 ```
 
-Parse a `Content-Disposition` header string. This automatically handles extended
-("Unicode") parameters by decoding them and providing them under the standard
-parameter name. This will return an object with the following properties (examples
-are shown for the string `'attachment; filename="EURO rates.txt"; filename*=UTF-8\'\'%e2%82%ac%20rates.txt'`):
+## Browser support
+  You can build a browser-ready script using [browserify](https://github.com/substack/node-browserify),
+  or just use the [browserify-as-a-service](https://wzrd.in/) [build](https://wzrd.in/standalone/debug@latest),
+  if you don't want to build it yourself.
 
- - `type`: The disposition type (always lower case). Example: `'attachment'`
-
- - `parameters`: An object of the parameters in the disposition (name of parameter
-   always lower case and extended versions replace non-extended versions). Example:
-   `{filename: "€ rates.txt"}`
-
-## Examples
-
-### Send a file for download
+  Debug's enable state is currently persisted by `localStorage`.
+  Consider the situation shown below where you have `worker:a` and `worker:b`,
+  and wish to debug both. You can enable this using `localStorage.debug`:
 
 ```js
-var contentDisposition = require('content-disposition')
-var destroy = require('destroy')
-var fs = require('fs')
-var http = require('http')
-var onFinished = require('on-finished')
-
-var filePath = '/path/to/public/plans.pdf'
-
-http.createServer(function onRequest (req, res) {
-  // set headers
-  res.setHeader('Content-Type', 'application/pdf')
-  res.setHeader('Content-Disposition', contentDisposition(filePath))
-
-  // send file
-  var stream = fs.createReadStream(filePath)
-  stream.pipe(res)
-  onFinished(res, function () {
-    destroy(stream)
-  })
-})
+localStorage.debug = 'worker:*'
 ```
 
-## Testing
+And then refresh the page.
 
-```sh
-$ npm test
+```js
+a = debug('worker:a');
+b = debug('worker:b');
+
+setInterval(function(){
+  a('doing some work');
+}, 1000);
+
+setInterval(function(){
+  b('doing some work');
+}, 1200);
 ```
 
-## References
+#### Web Inspector Colors
 
-- [RFC 2616: Hypertext Transfer Protocol -- HTTP/1.1][rfc-2616]
-- [RFC 5987: Character Set and Language Encoding for Hypertext Transfer Protocol (HTTP) Header Field Parameters][rfc-5987]
-- [RFC 6266: Use of the Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)][rfc-6266]
-- [Test Cases for HTTP Content-Disposition header field (RFC 6266) and the Encodings defined in RFCs 2047, 2231 and 5987][tc-2231]
+  Colors are also enabled on "Web Inspectors" that understand the `%c` formatting
+  option. These are WebKit web inspectors, Firefox ([since version
+  31](https://hacks.mozilla.org/2014/05/editable-box-model-multiple-selection-sublime-text-keys-much-more-firefox-developer-tools-episode-31/))
+  and the Firebug plugin for Firefox (any version).
 
-[rfc-2616]: https://tools.ietf.org/html/rfc2616
-[rfc-5987]: https://tools.ietf.org/html/rfc5987
-[rfc-6266]: https://tools.ietf.org/html/rfc6266
-[tc-2231]: http://greenbytes.de/tech/tc2231/
+  Colored output looks something like:
+
+  ![](https://cloud.githubusercontent.com/assets/71256/3139768/b98c5fd8-e8ef-11e3-862a-f7253b6f47c6.png)
+
+
+## Output streams
+
+  By default `debug` will log to stderr, however this can be configured per-namespace by overriding the `log` method:
+
+Example _stdout.js_:
+
+```js
+var debug = require('debug');
+var error = debug('app:error');
+
+// by default stderr is used
+error('goes to stderr!');
+
+var log = debug('app:log');
+// set this namespace to log via console.log
+log.log = console.log.bind(console); // don't forget to bind to console!
+log('goes to stdout');
+error('still goes to stderr!');
+
+// set all output to go via console.info
+// overrides all per-namespace log settings
+debug.log = console.info.bind(console);
+error('now goes to stdout via console.info');
+log('still goes to stdout, but via console.info now');
+```
+
+
+## Authors
+
+ - TJ Holowaychuk
+ - Nathan Rajlich
+ - Andrew Rhyne
+ 
+## Backers
+
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/debug#backer)]
+
+<a href="https://opencollective.com/debug/backer/0/website" target="_blank"><img src="https://opencollective.com/debug/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/1/website" target="_blank"><img src="https://opencollective.com/debug/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/2/website" target="_blank"><img src="https://opencollective.com/debug/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/3/website" target="_blank"><img src="https://opencollective.com/debug/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/4/website" target="_blank"><img src="https://opencollective.com/debug/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/5/website" target="_blank"><img src="https://opencollective.com/debug/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/6/website" target="_blank"><img src="https://opencollective.com/debug/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/7/website" target="_blank"><img src="https://opencollective.com/debug/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/8/website" target="_blank"><img src="https://opencollective.com/debug/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/9/website" target="_blank"><img src="https://opencollective.com/debug/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/10/website" target="_blank"><img src="https://opencollective.com/debug/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/11/website" target="_blank"><img src="https://opencollective.com/debug/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/12/website" target="_blank"><img src="https://opencollective.com/debug/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/13/website" target="_blank"><img src="https://opencollective.com/debug/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/14/website" target="_blank"><img src="https://opencollective.com/debug/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/15/website" target="_blank"><img src="https://opencollective.com/debug/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/16/website" target="_blank"><img src="https://opencollective.com/debug/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/17/website" target="_blank"><img src="https://opencollective.com/debug/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/18/website" target="_blank"><img src="https://opencollective.com/debug/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/19/website" target="_blank"><img src="https://opencollective.com/debug/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/20/website" target="_blank"><img src="https://opencollective.com/debug/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/21/website" target="_blank"><img src="https://opencollective.com/debug/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/22/website" target="_blank"><img src="https://opencollective.com/debug/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/23/website" target="_blank"><img src="https://opencollective.com/debug/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/24/website" target="_blank"><img src="https://opencollective.com/debug/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/25/website" target="_blank"><img src="https://opencollective.com/debug/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/26/website" target="_blank"><img src="https://opencollective.com/debug/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/27/website" target="_blank"><img src="https://opencollective.com/debug/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/28/website" target="_blank"><img src="https://opencollective.com/debug/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/debug/backer/29/website" target="_blank"><img src="https://opencollective.com/debug/backer/29/avatar.svg"></a>
+
+
+## Sponsors
+
+Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/debug#sponsor)]
+
+<a href="https://opencollective.com/debug/sponsor/0/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/1/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/2/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/3/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/4/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/5/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/6/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/7/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/8/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/9/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/10/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/10/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/11/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/11/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/12/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/12/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/13/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/13/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/14/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/14/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/15/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/15/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/16/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/16/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/17/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/17/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/18/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/18/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/19/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/19/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/20/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/20/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/21/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/21/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/22/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/22/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/23/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/23/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/24/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/24/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/25/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/25/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/26/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/26/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/27/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/27/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/28/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/28/avatar.svg"></a>
+<a href="https://opencollective.com/debug/sponsor/29/website" target="_blank"><img src="https://opencollective.com/debug/sponsor/29/avatar.svg"></a>
 
 ## License
 
-[MIT](LICENSE)
+(The MIT License)
 
-[npm-image]: https://img.shields.io/npm/v/content-disposition.svg
-[npm-url]: https://npmjs.org/package/content-disposition
-[node-version-image]: https://img.shields.io/node/v/content-disposition.svg
-[node-version-url]: https://nodejs.org/en/download
-[coveralls-image]: https://img.shields.io/coveralls/jshttp/content-disposition.svg
-[coveralls-url]: https://coveralls.io/r/jshttp/content-disposition?branch=master
-[downloads-image]: https://img.shields.io/npm/dm/content-disposition.svg
-[downloads-url]: https://npmjs.org/package/content-disposition
-[github-actions-ci-image]: https://img.shields.io/github/workflow/status/jshttp/content-disposition/ci/master?label=ci
-[github-actions-ci-url]: https://github.com/jshttp/content-disposition?query=workflow%3Aci
+Copyright (c) 2014-2016 TJ Holowaychuk &lt;tj@vision-media.ca&gt;
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
