@@ -1,341 +1,137 @@
 /*!
- * finalhandler
- * Copyright(c) 2014-2022 Douglas Christopher Wilson
+ * fresh
+ * Copyright(c) 2012 TJ Holowaychuk
+ * Copyright(c) 2016-2017 Douglas Christopher Wilson
  * MIT Licensed
  */
 
 'use strict'
 
 /**
- * Module dependencies.
+ * RegExp to check for no-cache token in Cache-Control.
  * @private
  */
 
-var debug = require('debug')('finalhandler')
-var encodeUrl = require('encodeurl')
-var escapeHtml = require('escape-html')
-var onFinished = require('on-finished')
-var parseUrl = require('parseurl')
-var statuses = require('statuses')
-var unpipe = require('unpipe')
-
-/**
- * Module variables.
- * @private
- */
-
-var DOUBLE_SPACE_REGEXP = /\x20{2}/g
-var NEWLINE_REGEXP = /\n/g
-
-/* istanbul ignore next */
-var defer = typeof setImmediate === 'function'
-  ? setImmediate
-  : function (fn) { process.nextTick(fn.bind.apply(fn, arguments)) }
-var isFinished = onFinished.isFinished
-
-/**
- * Create a minimal HTML document.
- *
- * @param {string} message
- * @private
- */
-
-function createHtmlDocument (message) {
-  var body = escapeHtml(message)
-    .replace(NEWLINE_REGEXP, '<br>')
-    .replace(DOUBLE_SPACE_REGEXP, ' &nbsp;')
-
-  return '<!DOCTYPE html>\n' +
-    '<html lang="en">\n' +
-    '<head>\n' +
-    '<meta charset="utf-8">\n' +
-    '<title>Error</title>\n' +
-    '</head>\n' +
-    '<body>\n' +
-    '<pre>' + body + '</pre>\n' +
-    '</body>\n' +
-    '</html>\n'
-}
+var CACHE_CONTROL_NO_CACHE_REGEXP = /(?:^|,)\s*?no-cache\s*?(?:,|$)/
 
 /**
  * Module exports.
  * @public
  */
 
-module.exports = finalhandler
+module.exports = fresh
 
 /**
- * Create a function to handle the final response.
+ * Check freshness of the response using request and response headers.
  *
- * @param {Request} req
- * @param {Response} res
- * @param {Object} [options]
- * @return {Function}
+ * @param {Object} reqHeaders
+ * @param {Object} resHeaders
+ * @return {Boolean}
  * @public
  */
 
-function finalhandler (req, res, options) {
-  var opts = options || {}
+function fresh (reqHeaders, resHeaders) {
+  // fields
+  var modifiedSince = reqHeaders['if-modified-since']
+  var noneMatch = reqHeaders['if-none-match']
 
-  // get environment
-  var env = opts.env || process.env.NODE_ENV || 'development'
+  // unconditional request
+  if (!modifiedSince && !noneMatch) {
+    return false
+  }
 
-  // get error callback
-  var onerror = opts.onerror
+  // Always return stale when Cache-Control: no-cache
+  // to support end-to-end reload requests
+  // https://tools.ietf.org/html/rfc2616#section-14.9.4
+  var cacheControl = reqHeaders['cache-control']
+  if (cacheControl && CACHE_CONTROL_NO_CACHE_REGEXP.test(cacheControl)) {
+    return false
+  }
 
-  return function (err) {
-    var headers
-    var msg
-    var status
+  // if-none-match
+  if (noneMatch && noneMatch !== '*') {
+    var etag = resHeaders['etag']
 
-    // ignore 404 on in-flight response
-    if (!err && headersSent(res)) {
-      debug('cannot 404 after headers sent')
-      return
+    if (!etag) {
+      return false
     }
 
-    // unhandled error
-    if (err) {
-      // respect status code from error
-      status = getErrorStatusCode(err)
-
-      if (status === undefined) {
-        // fallback to status code on response
-        status = getResponseStatusCode(res)
-      } else {
-        // respect headers from error
-        headers = getErrorHeaders(err)
+    var etagStale = true
+    var matches = parseTokenList(noneMatch)
+    for (var i = 0; i < matches.length; i++) {
+      var match = matches[i]
+      if (match === etag || match === 'W/' + etag || 'W/' + match === etag) {
+        etagStale = false
+        break
       }
-
-      // get error message
-      msg = getErrorMessage(err, status, env)
-    } else {
-      // not found
-      status = 404
-      msg = 'Cannot ' + req.method + ' ' + encodeUrl(getResourceName(req))
     }
 
-    debug('default %s', status)
-
-    // schedule onerror callback
-    if (err && onerror) {
-      defer(onerror, err, req, res)
-    }
-
-    // cannot actually respond
-    if (headersSent(res)) {
-      debug('cannot %d after headers sent', status)
-      if (req.socket) {
-        req.socket.destroy()
-      }
-      return
-    }
-
-    // send response
-    send(req, res, status, headers, msg)
-  }
-}
-
-/**
- * Get headers from Error object.
- *
- * @param {Error} err
- * @return {object}
- * @private
- */
-
-function getErrorHeaders (err) {
-  if (!err.headers || typeof err.headers !== 'object') {
-    return undefined
-  }
-
-  var headers = Object.create(null)
-  var keys = Object.keys(err.headers)
-
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    headers[key] = err.headers[key]
-  }
-
-  return headers
-}
-
-/**
- * Get message from Error object, fallback to status message.
- *
- * @param {Error} err
- * @param {number} status
- * @param {string} env
- * @return {string}
- * @private
- */
-
-function getErrorMessage (err, status, env) {
-  var msg
-
-  if (env !== 'production') {
-    // use err.stack, which typically includes err.message
-    msg = err.stack
-
-    // fallback to err.toString() when possible
-    if (!msg && typeof err.toString === 'function') {
-      msg = err.toString()
+    if (etagStale) {
+      return false
     }
   }
 
-  return msg || statuses.message[status]
-}
+  // if-modified-since
+  if (modifiedSince) {
+    var lastModified = resHeaders['last-modified']
+    var modifiedStale = !lastModified || !(parseHttpDate(lastModified) <= parseHttpDate(modifiedSince))
 
-/**
- * Get status code from Error object.
- *
- * @param {Error} err
- * @return {number}
- * @private
- */
-
-function getErrorStatusCode (err) {
-  // check err.status
-  if (typeof err.status === 'number' && err.status >= 400 && err.status < 600) {
-    return err.status
-  }
-
-  // check err.statusCode
-  if (typeof err.statusCode === 'number' && err.statusCode >= 400 && err.statusCode < 600) {
-    return err.statusCode
-  }
-
-  return undefined
-}
-
-/**
- * Get resource name for the request.
- *
- * This is typically just the original pathname of the request
- * but will fallback to "resource" is that cannot be determined.
- *
- * @param {IncomingMessage} req
- * @return {string}
- * @private
- */
-
-function getResourceName (req) {
-  try {
-    return parseUrl.original(req).pathname
-  } catch (e) {
-    return 'resource'
-  }
-}
-
-/**
- * Get status code from response.
- *
- * @param {OutgoingMessage} res
- * @return {number}
- * @private
- */
-
-function getResponseStatusCode (res) {
-  var status = res.statusCode
-
-  // default status code to 500 if outside valid range
-  if (typeof status !== 'number' || status < 400 || status > 599) {
-    status = 500
-  }
-
-  return status
-}
-
-/**
- * Determine if the response headers have been sent.
- *
- * @param {object} res
- * @returns {boolean}
- * @private
- */
-
-function headersSent (res) {
-  return typeof res.headersSent !== 'boolean'
-    ? Boolean(res._header)
-    : res.headersSent
-}
-
-/**
- * Send response.
- *
- * @param {IncomingMessage} req
- * @param {OutgoingMessage} res
- * @param {number} status
- * @param {object} headers
- * @param {string} message
- * @private
- */
-
-function send (req, res, status, headers, message) {
-  function write () {
-    // response body
-    var body = createHtmlDocument(message)
-
-    // response status
-    res.statusCode = status
-
-    if (req.httpVersionMajor < 2) {
-      res.statusMessage = statuses.message[status]
+    if (modifiedStale) {
+      return false
     }
-
-    // remove any content headers
-    res.removeHeader('Content-Encoding')
-    res.removeHeader('Content-Language')
-    res.removeHeader('Content-Range')
-
-    // response headers
-    setHeaders(res, headers)
-
-    // security headers
-    res.setHeader('Content-Security-Policy', "default-src 'none'")
-    res.setHeader('X-Content-Type-Options', 'nosniff')
-
-    // standard headers
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.setHeader('Content-Length', Buffer.byteLength(body, 'utf8'))
-
-    if (req.method === 'HEAD') {
-      res.end()
-      return
-    }
-
-    res.end(body, 'utf8')
   }
 
-  if (isFinished(req)) {
-    write()
-    return
-  }
-
-  // unpipe everything from the request
-  unpipe(req)
-
-  // flush the request
-  onFinished(req, write)
-  req.resume()
+  return true
 }
 
 /**
- * Set response headers from an object.
+ * Parse an HTTP Date into a number.
  *
- * @param {OutgoingMessage} res
- * @param {object} headers
+ * @param {string} date
  * @private
  */
 
-function setHeaders (res, headers) {
-  if (!headers) {
-    return
+function parseHttpDate (date) {
+  var timestamp = date && Date.parse(date)
+
+  // istanbul ignore next: guard against date.js Date.parse patching
+  return typeof timestamp === 'number'
+    ? timestamp
+    : NaN
+}
+
+/**
+ * Parse a HTTP token list.
+ *
+ * @param {string} str
+ * @private
+ */
+
+function parseTokenList (str) {
+  var end = 0
+  var list = []
+  var start = 0
+
+  // gather tokens
+  for (var i = 0, len = str.length; i < len; i++) {
+    switch (str.charCodeAt(i)) {
+      case 0x20: /*   */
+        if (start === end) {
+          start = end = i + 1
+        }
+        break
+      case 0x2c: /* , */
+        list.push(str.substring(start, end))
+        start = end = i + 1
+        break
+      default:
+        end = i + 1
+        break
+    }
   }
 
-  var keys = Object.keys(headers)
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    res.setHeader(key, headers[key])
-  }
+  // final token
+  list.push(str.substring(start, end))
+
+  return list
 }

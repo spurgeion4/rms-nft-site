@@ -1,12 +1,12 @@
-# finalhandler
+# fresh
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-image]][node-url]
-[![Build Status][github-actions-ci-image]][github-actions-ci-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
-Node.js function to invoke as the final step to respond to HTTP request.
+HTTP response freshness testing
 
 ## Installation
 
@@ -14,134 +14,106 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 [npm registry](https://www.npmjs.com/). Installation is done using the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
-```sh
-$ npm install finalhandler
+```
+$ npm install fresh
 ```
 
 ## API
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
-var finalhandler = require('finalhandler')
+var fresh = require('fresh')
 ```
 
-### finalhandler(req, res, [options])
+### fresh(reqHeaders, resHeaders)
 
-Returns function to be invoked as the final step for the given `req` and `res`.
-This function is to be invoked as `fn(err)`. If `err` is falsy, the handler will
-write out a 404 response to the `res`. If it is truthy, an error response will
-be written out to the `res` or `res` will be terminated if a response has already
-started.
+Check freshness of the response using request and response headers.
 
-When an error is written, the following information is added to the response:
+When the response is still "fresh" in the client's cache `true` is
+returned, otherwise `false` is returned to indicate that the client
+cache is now stale and the full response should be sent.
 
-  * The `res.statusCode` is set from `err.status` (or `err.statusCode`). If
-    this value is outside the 4xx or 5xx range, it will be set to 500.
-  * The `res.statusMessage` is set according to the status code.
-  * The body will be the HTML of the status code message if `env` is
-    `'production'`, otherwise will be `err.stack`.
-  * Any headers specified in an `err.headers` object.
+When a client sends the `Cache-Control: no-cache` request header to
+indicate an end-to-end reload request, this module will return `false`
+to make handling these requests transparent.
 
-The final handler will also unpipe anything from `req` when it is invoked.
+## Known Issues
 
-#### options.env
+This module is designed to only follow the HTTP specifications, not
+to work-around all kinda of client bugs (especially since this module
+typically does not recieve enough information to understand what the
+client actually is).
 
-By default, the environment is determined by `NODE_ENV` variable, but it can be
-overridden by this option.
+There is a known issue that in certain versions of Safari, Safari
+will incorrectly make a request that allows this module to validate
+freshness of the resource even when Safari does not have a
+representation of the resource in the cache. The module
+[jumanji](https://www.npmjs.com/package/jumanji) can be used in
+an Express application to work-around this issue and also provides
+links to further reading on this Safari bug.
 
-#### options.onerror
+## Example
 
-Provide a function to be called with the `err` when it exists. Can be used for
-writing errors to a central location without excessive function generation. Called
-as `onerror(err, req, res)`.
+### API usage
 
-## Examples
-
-### always 404
+<!-- eslint-disable no-redeclare, no-undef -->
 
 ```js
-var finalhandler = require('finalhandler')
+var reqHeaders = { 'if-none-match': '"foo"' }
+var resHeaders = { 'etag': '"bar"' }
+fresh(reqHeaders, resHeaders)
+// => false
+
+var reqHeaders = { 'if-none-match': '"foo"' }
+var resHeaders = { 'etag': '"foo"' }
+fresh(reqHeaders, resHeaders)
+// => true
+```
+
+### Using with Node.js http server
+
+```js
+var fresh = require('fresh')
 var http = require('http')
 
 var server = http.createServer(function (req, res) {
-  var done = finalhandler(req, res)
-  done()
+  // perform server logic
+  // ... including adding ETag / Last-Modified response headers
+
+  if (isFresh(req, res)) {
+    // client has a fresh copy of resource
+    res.statusCode = 304
+    res.end()
+    return
+  }
+
+  // send the resource
+  res.statusCode = 200
+  res.end('hello, world!')
 })
 
-server.listen(3000)
-```
-
-### perform simple action
-
-```js
-var finalhandler = require('finalhandler')
-var fs = require('fs')
-var http = require('http')
-
-var server = http.createServer(function (req, res) {
-  var done = finalhandler(req, res)
-
-  fs.readFile('index.html', function (err, buf) {
-    if (err) return done(err)
-    res.setHeader('Content-Type', 'text/html')
-    res.end(buf)
+function isFresh (req, res) {
+  return fresh(req.headers, {
+    'etag': res.getHeader('ETag'),
+    'last-modified': res.getHeader('Last-Modified')
   })
-})
-
-server.listen(3000)
-```
-
-### use with middleware-style functions
-
-```js
-var finalhandler = require('finalhandler')
-var http = require('http')
-var serveStatic = require('serve-static')
-
-var serve = serveStatic('public')
-
-var server = http.createServer(function (req, res) {
-  var done = finalhandler(req, res)
-  serve(req, res, done)
-})
-
-server.listen(3000)
-```
-
-### keep log of all errors
-
-```js
-var finalhandler = require('finalhandler')
-var fs = require('fs')
-var http = require('http')
-
-var server = http.createServer(function (req, res) {
-  var done = finalhandler(req, res, { onerror: logerror })
-
-  fs.readFile('index.html', function (err, buf) {
-    if (err) return done(err)
-    res.setHeader('Content-Type', 'text/html')
-    res.end(buf)
-  })
-})
-
-server.listen(3000)
-
-function logerror (err) {
-  console.error(err.stack || err.toString())
 }
+
+server.listen(3000)
 ```
 
 ## License
 
 [MIT](LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/finalhandler.svg
-[npm-url]: https://npmjs.org/package/finalhandler
-[node-image]: https://img.shields.io/node/v/finalhandler.svg
-[node-url]: https://nodejs.org/en/download
-[coveralls-image]: https://img.shields.io/coveralls/pillarjs/finalhandler.svg
-[coveralls-url]: https://coveralls.io/r/pillarjs/finalhandler?branch=master
-[downloads-image]: https://img.shields.io/npm/dm/finalhandler.svg
-[downloads-url]: https://npmjs.org/package/finalhandler
-[github-actions-ci-image]: https://github.com/pillarjs/finalhandler/actions/workflows/ci.yml/badge.svg
-[github-actions-ci-url]: https://github.com/pillarjs/finalhandler/actions/workflows/ci.yml
+[npm-image]: https://img.shields.io/npm/v/fresh.svg
+[npm-url]: https://npmjs.org/package/fresh
+[node-version-image]: https://img.shields.io/node/v/fresh.svg
+[node-version-url]: https://nodejs.org/en/
+[travis-image]: https://img.shields.io/travis/jshttp/fresh/master.svg
+[travis-url]: https://travis-ci.org/jshttp/fresh
+[coveralls-image]: https://img.shields.io/coveralls/jshttp/fresh/master.svg
+[coveralls-url]: https://coveralls.io/r/jshttp/fresh?branch=master
+[downloads-image]: https://img.shields.io/npm/dm/fresh.svg
+[downloads-url]: https://npmjs.org/package/fresh
