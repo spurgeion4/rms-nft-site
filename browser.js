@@ -1,2 +1,8 @@
-/* eslint-env browser */
-module.exports = typeof self == 'object' ? self.FormData : window.FormData;
+/**
+ * Export lib/mongoose
+ *
+ */
+
+'use strict';
+
+module.exports = require('./lib/browser');
