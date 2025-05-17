@@ -1,29 +1,25 @@
-# saslprep
+# binary-extensions
 
-_Note: This is a fork of the original [`saslprep`](https://www.npmjs.com/package/saslprep) npm package
-and provides equivalent functionality._
+> List of binary file extensions
 
-Stringprep Profile for User Names and Passwords, [rfc4013](https://tools.ietf.org/html/rfc4013)
+The list is just a [JSON file](binary-extensions.json) and can be used anywhere.
 
-### Usage
+## Install
 
-```js
-const saslprep = require('@mongodb-js/saslprep');
-
-saslprep('password\u00AD'); // password
-saslprep('password\u0007'); // Error: prohibited character
+```sh
+npm install binary-extensions
 ```
 
-### API
+## Usage
 
-##### `saslprep(input: String, opts: Options): String`
+```js
+const binaryExtensions = require('binary-extensions');
 
-Normalize user name or password.
+console.log(binaryExtensions);
+//=> ['3ds', '3g2', …]
+```
 
-##### `Options.allowUnassigned: bool`
+## Related
 
-A special behavior for unassigned code points, see https://tools.ietf.org/html/rfc4013#section-2.5. Disabled by default.
-
-## License
-
-MIT, 2017-2019 (c) Dmitriy Tsvettsikh
+- [is-binary-path](https://github.com/sindresorhus/is-binary-path) - Check if a filepath is a binary file
+- [text-extensions](https://github.com/sindresorhus/text-extensions) - List of text file extensions
