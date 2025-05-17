@@ -1,67 +1,110 @@
-# Changelog
+### [5.1.2](https://github.com/gulpjs/glob-parent/compare/v5.1.1...v5.1.2) (2021-03-06)
 
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Bug Fixes
 
-## [v2.1.0](https://github.com/es-shims/es-set-tostringtag/compare/v2.0.3...v2.1.0) - 2025-01-01
+* eliminate ReDoS ([#36](https://github.com/gulpjs/glob-parent/issues/36)) ([f923116](https://github.com/gulpjs/glob-parent/commit/f9231168b0041fea3f8f954b3cceb56269fc6366))
 
-### Commits
+### [5.1.1](https://github.com/gulpjs/glob-parent/compare/v5.1.0...v5.1.1) (2021-01-27)
 
-- [actions] split out node 10-20, and 20+ [`ede033c`](https://github.com/es-shims/es-set-tostringtag/commit/ede033cc4e506c3966d2d482d4ac5987e329162a)
-- [types] use shared config [`28ef164`](https://github.com/es-shims/es-set-tostringtag/commit/28ef164ad7c5bc21837c79f7ef25542a1f258ade)
-- [New] add `nonConfigurable` option [`3bee3f0`](https://github.com/es-shims/es-set-tostringtag/commit/3bee3f04caddd318f3932912212ed20b2d62aad7)
-- [Fix] validate boolean option argument [`3c8a609`](https://github.com/es-shims/es-set-tostringtag/commit/3c8a609c795a305ccca163f0ff6956caa88cdc0e)
-- [Dev Deps] update `@arethetypeswrong/cli`, `@ljharb/eslint-config`, `@ljharb/tsconfig`, `@types/get-intrinsic`, `@types/tape`, `auto-changelog`, `tape` [`501a969`](https://github.com/es-shims/es-set-tostringtag/commit/501a96998484226e07f5ffd447e8f305a998f1d8)
-- [Tests] add coverage [`18af289`](https://github.com/es-shims/es-set-tostringtag/commit/18af2897b4e937373c9b8c8831bc338932246470)
-- [readme] document `force` option [`bd446a1`](https://github.com/es-shims/es-set-tostringtag/commit/bd446a107b71a2270278442e5124f45590d3ee64)
-- [Tests] use `@arethetypeswrong/cli` [`7c2c2fa`](https://github.com/es-shims/es-set-tostringtag/commit/7c2c2fa3cca0f4d263603adb75426b239514598f)
-- [Tests] replace `aud` with `npm audit` [`9e372d7`](https://github.com/es-shims/es-set-tostringtag/commit/9e372d7e6db3dab405599a14d9074a99a03b8242)
-- [Deps] update `get-intrinsic` [`7df1216`](https://github.com/es-shims/es-set-tostringtag/commit/7df12167295385c2a547410e687cb0c04f3a34b9)
-- [Deps] update `hasown` [`993a7d2`](https://github.com/es-shims/es-set-tostringtag/commit/993a7d200e2059fd857ec1a25d0a49c2c34ae6e2)
-- [Dev Deps] add missing peer dep [`148ed8d`](https://github.com/es-shims/es-set-tostringtag/commit/148ed8db99a7a94f9af3823fd083e6e437fa1587)
 
-## [v2.0.3](https://github.com/es-shims/es-set-tostringtag/compare/v2.0.2...v2.0.3) - 2024-02-20
+### Bug Fixes
 
-### Commits
+* unescape exclamation mark ([#26](https://github.com/gulpjs/glob-parent/issues/26)) ([a98874f](https://github.com/gulpjs/glob-parent/commit/a98874f1a59e407f4fb1beb0db4efa8392da60bb))
 
-- add types [`d538513`](https://github.com/es-shims/es-set-tostringtag/commit/d5385133592a32a0a416cb535327918af7fbc4ad)
-- [Deps] update `get-intrinsic`, `has-tostringtag`, `hasown` [`d129b29`](https://github.com/es-shims/es-set-tostringtag/commit/d129b29536bccc8a9d03a47887ca4d1f7ad0c5b9)
-- [Dev Deps] update `aud`, `npmignore`, `tape` [`132ed23`](https://github.com/es-shims/es-set-tostringtag/commit/132ed23c964a41ed55e4ab4a5a2c3fe185e821c1)
-- [Tests] fix hasOwn require [`f89c831`](https://github.com/es-shims/es-set-tostringtag/commit/f89c831fe5f3edf1f979c597b56fee1be6111f56)
+## [5.1.0](https://github.com/gulpjs/glob-parent/compare/v5.0.0...v5.1.0) (2021-01-27)
 
-## [v2.0.2](https://github.com/es-shims/es-set-tostringtag/compare/v2.0.1...v2.0.2) - 2023-10-20
 
-### Commits
+### Features
 
-- [Refactor] use `hasown` instead of `has` [`0cc6c4e`](https://github.com/es-shims/es-set-tostringtag/commit/0cc6c4e61fd13e8f00b85424ae6e541ebf289e74)
-- [Dev Deps] update `@ljharb/eslint-config`, `aud`, `tape` [`70e447c`](https://github.com/es-shims/es-set-tostringtag/commit/70e447cf9f82b896ddf359fda0a0498c16cf3ed2)
-- [Deps] update `get-intrinsic` [`826aab7`](https://github.com/es-shims/es-set-tostringtag/commit/826aab76180392871c8efa99acc0f0bbf775c64e)
+* add `flipBackslashes` option to disable auto conversion of slashes (closes [#24](https://github.com/gulpjs/glob-parent/issues/24)) ([#25](https://github.com/gulpjs/glob-parent/issues/25)) ([eecf91d](https://github.com/gulpjs/glob-parent/commit/eecf91d5e3834ed78aee39c4eaaae654d76b87b3))
 
-## [v2.0.1](https://github.com/es-shims/es-set-tostringtag/compare/v2.0.0...v2.0.1) - 2023-01-05
+## [5.0.0](https://github.com/gulpjs/glob-parent/compare/v4.0.0...v5.0.0) (2021-01-27)
 
-### Fixed
 
-- [Fix] move `has` to prod deps [`#2`](https://github.com/es-shims/es-set-tostringtag/issues/2)
+### ⚠ BREAKING CHANGES
 
-### Commits
+* Drop support for node <6 & bump dependencies
 
-- [Dev Deps] update `@ljharb/eslint-config` [`b9eecd2`](https://github.com/es-shims/es-set-tostringtag/commit/b9eecd23c10b7b43ba75089ac8ff8cc6b295798b)
+### Miscellaneous Chores
 
-## [v2.0.0](https://github.com/es-shims/es-set-tostringtag/compare/v1.0.0...v2.0.0) - 2022-12-21
+* Drop support for node <6 & bump dependencies ([896c0c0](https://github.com/gulpjs/glob-parent/commit/896c0c00b4e7362f60b96e7fc295ae929245255a))
 
-### Commits
+## [4.0.0](https://github.com/gulpjs/glob-parent/compare/v3.1.0...v4.0.0) (2021-01-27)
 
-- [Tests] refactor tests [`168dcfb`](https://github.com/es-shims/es-set-tostringtag/commit/168dcfbb535c279dc48ccdc89419155125aaec18)
-- [Breaking] do not set toStringTag if it is already set [`226ab87`](https://github.com/es-shims/es-set-tostringtag/commit/226ab874192c625d9e5f0e599d3f60d2b2aa83b5)
-- [New] add `force` option to set even if already set [`1abd4ec`](https://github.com/es-shims/es-set-tostringtag/commit/1abd4ecb282f19718c4518284b0293a343564505)
 
-## v1.0.0 - 2022-12-21
+### ⚠ BREAKING CHANGES
 
-### Commits
+* question marks are valid path characters on Windows so avoid flagging as a glob when alone
+* Update is-glob dependency
 
-- Initial implementation, tests, readme [`a0e1147`](https://github.com/es-shims/es-set-tostringtag/commit/a0e11473f79a233b46374525c962ea1b4d42418a)
-- Initial commit [`ffd4aff`](https://github.com/es-shims/es-set-tostringtag/commit/ffd4afffbeebf29aff0d87a7cfc3f7844e09fe68)
-- npm init [`fffe5bd`](https://github.com/es-shims/es-set-tostringtag/commit/fffe5bd1d1146d084730a387a9c672371f4a8fff)
-- Only apps should have lockfiles [`d363871`](https://github.com/es-shims/es-set-tostringtag/commit/d36387139465623e161a15dbd39120537f150c62)
+### Features
+
+* hoist regexps and strings for performance gains ([4a80667](https://github.com/gulpjs/glob-parent/commit/4a80667c69355c76a572a5892b0f133c8e1f457e))
+* question marks are valid path characters on Windows so avoid flagging as a glob when alone ([2a551dd](https://github.com/gulpjs/glob-parent/commit/2a551dd0dc3235e78bf3c94843d4107072d17841))
+* Update is-glob dependency ([e41fcd8](https://github.com/gulpjs/glob-parent/commit/e41fcd895d1f7bc617dba45c9d935a7949b9c281))
+
+## [3.1.0](https://github.com/gulpjs/glob-parent/compare/v3.0.1...v3.1.0) (2021-01-27)
+
+
+### Features
+
+* allow basic win32 backslash use ([272afa5](https://github.com/gulpjs/glob-parent/commit/272afa5fd070fc0f796386a5993d4ee4a846988b))
+* handle extglobs (parentheses) containing separators ([7db1bdb](https://github.com/gulpjs/glob-parent/commit/7db1bdb0756e55fd14619e8ce31aa31b17b117fd))
+* new approach to braces/brackets handling ([8269bd8](https://github.com/gulpjs/glob-parent/commit/8269bd89290d99fac9395a354fb56fdcdb80f0be))
+* pre-process braces/brackets sections ([9ef8a87](https://github.com/gulpjs/glob-parent/commit/9ef8a87f66b1a43d0591e7a8e4fc5a18415ee388))
+* preserve escaped brace/bracket at end of string ([8cfb0ba](https://github.com/gulpjs/glob-parent/commit/8cfb0ba84202d51571340dcbaf61b79d16a26c76))
+
+
+### Bug Fixes
+
+* trailing escaped square brackets ([99ec9fe](https://github.com/gulpjs/glob-parent/commit/99ec9fecc60ee488ded20a94dd4f18b4f55c4ccf))
+
+### [3.0.1](https://github.com/gulpjs/glob-parent/compare/v3.0.0...v3.0.1) (2021-01-27)
+
+
+### Features
+
+* use path-dirname ponyfill ([cdbea5f](https://github.com/gulpjs/glob-parent/commit/cdbea5f32a58a54e001a75ddd7c0fccd4776aacc))
+
+
+### Bug Fixes
+
+* unescape glob-escaped dirnames on output ([598c533](https://github.com/gulpjs/glob-parent/commit/598c533bdf49c1428bc063aa9b8db40c5a86b030))
+
+## [3.0.0](https://github.com/gulpjs/glob-parent/compare/v2.0.0...v3.0.0) (2021-01-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* update is-glob dependency
+
+### Features
+
+* update is-glob dependency ([5c5f8ef](https://github.com/gulpjs/glob-parent/commit/5c5f8efcee362a8e7638cf8220666acd8784f6bd))
+
+## [2.0.0](https://github.com/gulpjs/glob-parent/compare/v1.3.0...v2.0.0) (2021-01-27)
+
+
+### Features
+
+* move up to dirname regardless of glob characters ([f97fb83](https://github.com/gulpjs/glob-parent/commit/f97fb83be2e0a9fc8d3b760e789d2ecadd6aa0c2))
+
+## [1.3.0](https://github.com/gulpjs/glob-parent/compare/v1.2.0...v1.3.0) (2021-01-27)
+
+## [1.2.0](https://github.com/gulpjs/glob-parent/compare/v1.1.0...v1.2.0) (2021-01-27)
+
+
+### Reverts
+
+* feat: make regex test strings smaller ([dc80fa9](https://github.com/gulpjs/glob-parent/commit/dc80fa9658dca20549cfeba44bbd37d5246fcce0))
+
+## [1.1.0](https://github.com/gulpjs/glob-parent/compare/v1.0.0...v1.1.0) (2021-01-27)
+
+
+### Features
+
+* make regex test strings smaller ([cd83220](https://github.com/gulpjs/glob-parent/commit/cd832208638f45169f986d80fcf66e401f35d233))
+
+## 1.0.0 (2021-01-27)
+

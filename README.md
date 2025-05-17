@@ -1,119 +1,137 @@
-# fresh
+<p align="center">
+  <a href="https://gulpjs.com">
+    <img height="257" width="114" src="https://raw.githubusercontent.com/gulpjs/artwork/master/gulp-2x.png">
+  </a>
+</p>
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-version-image]][node-version-url]
-[![Build Status][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
+# glob-parent
 
-HTTP response freshness testing
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Azure Pipelines Build Status][azure-pipelines-image]][azure-pipelines-url] [![Travis Build Status][travis-image]][travis-url] [![AppVeyor Build Status][appveyor-image]][appveyor-url] [![Coveralls Status][coveralls-image]][coveralls-url] [![Gitter chat][gitter-image]][gitter-url]
 
-## Installation
+Extract the non-magic parent path from a glob string.
 
-This is a [Node.js](https://nodejs.org/en/) module available through the
-[npm registry](https://www.npmjs.com/). Installation is done using the
-[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
+## Usage
 
-```
-$ npm install fresh
+```js
+var globParent = require('glob-parent');
+
+globParent('path/to/*.js'); // 'path/to'
+globParent('/root/path/to/*.js'); // '/root/path/to'
+globParent('/*.js'); // '/'
+globParent('*.js'); // '.'
+globParent('**/*.js'); // '.'
+globParent('path/{to,from}'); // 'path'
+globParent('path/!(to|from)'); // 'path'
+globParent('path/?(to|from)'); // 'path'
+globParent('path/+(to|from)'); // 'path'
+globParent('path/*(to|from)'); // 'path'
+globParent('path/@(to|from)'); // 'path'
+globParent('path/**/*'); // 'path'
+
+// if provided a non-glob path, returns the nearest dir
+globParent('path/foo/bar.js'); // 'path/foo'
+globParent('path/foo/'); // 'path/foo'
+globParent('path/foo'); // 'path' (see issue #3 for details)
 ```
 
 ## API
 
-<!-- eslint-disable no-unused-vars -->
+### `globParent(maybeGlobString, [options])`
+
+Takes a string and returns the part of the path before the glob begins. Be aware of Escaping rules and Limitations below.
+
+#### options
 
 ```js
-var fresh = require('fresh')
-```
-
-### fresh(reqHeaders, resHeaders)
-
-Check freshness of the response using request and response headers.
-
-When the response is still "fresh" in the client's cache `true` is
-returned, otherwise `false` is returned to indicate that the client
-cache is now stale and the full response should be sent.
-
-When a client sends the `Cache-Control: no-cache` request header to
-indicate an end-to-end reload request, this module will return `false`
-to make handling these requests transparent.
-
-## Known Issues
-
-This module is designed to only follow the HTTP specifications, not
-to work-around all kinda of client bugs (especially since this module
-typically does not recieve enough information to understand what the
-client actually is).
-
-There is a known issue that in certain versions of Safari, Safari
-will incorrectly make a request that allows this module to validate
-freshness of the resource even when Safari does not have a
-representation of the resource in the cache. The module
-[jumanji](https://www.npmjs.com/package/jumanji) can be used in
-an Express application to work-around this issue and also provides
-links to further reading on this Safari bug.
-
-## Example
-
-### API usage
-
-<!-- eslint-disable no-redeclare, no-undef -->
-
-```js
-var reqHeaders = { 'if-none-match': '"foo"' }
-var resHeaders = { 'etag': '"bar"' }
-fresh(reqHeaders, resHeaders)
-// => false
-
-var reqHeaders = { 'if-none-match': '"foo"' }
-var resHeaders = { 'etag': '"foo"' }
-fresh(reqHeaders, resHeaders)
-// => true
-```
-
-### Using with Node.js http server
-
-```js
-var fresh = require('fresh')
-var http = require('http')
-
-var server = http.createServer(function (req, res) {
-  // perform server logic
-  // ... including adding ETag / Last-Modified response headers
-
-  if (isFresh(req, res)) {
-    // client has a fresh copy of resource
-    res.statusCode = 304
-    res.end()
-    return
-  }
-
-  // send the resource
-  res.statusCode = 200
-  res.end('hello, world!')
-})
-
-function isFresh (req, res) {
-  return fresh(req.headers, {
-    'etag': res.getHeader('ETag'),
-    'last-modified': res.getHeader('Last-Modified')
-  })
+{
+  // Disables the automatic conversion of slashes for Windows
+  flipBackslashes: true
 }
+```
 
-server.listen(3000)
+## Escaping
+
+The following characters have special significance in glob patterns and must be escaped if you want them to be treated as regular path characters:
+
+- `?` (question mark) unless used as a path segment alone
+- `*` (asterisk)
+- `|` (pipe)
+- `(` (opening parenthesis)
+- `)` (closing parenthesis)
+- `{` (opening curly brace)
+- `}` (closing curly brace)
+- `[` (opening bracket)
+- `]` (closing bracket)
+
+**Example**
+
+```js
+globParent('foo/[bar]/') // 'foo'
+globParent('foo/\\[bar]/') // 'foo/[bar]'
+```
+
+## Limitations
+
+### Braces & Brackets
+This library attempts a quick and imperfect method of determining which path
+parts have glob magic without fully parsing/lexing the pattern. There are some
+advanced use cases that can trip it up, such as nested braces where the outer
+pair is escaped and the inner one contains a path separator. If you find
+yourself in the unlikely circumstance of being affected by this or need to
+ensure higher-fidelity glob handling in your library, it is recommended that you
+pre-process your input with [expand-braces] and/or [expand-brackets].
+
+### Windows
+Backslashes are not valid path separators for globs. If a path with backslashes
+is provided anyway, for simple cases, glob-parent will replace the path
+separator for you and return the non-glob parent path (now with
+forward-slashes, which are still valid as Windows path separators).
+
+This cannot be used in conjunction with escape characters.
+
+```js
+// BAD
+globParent('C:\\Program Files \\(x86\\)\\*.ext') // 'C:/Program Files /(x86/)'
+
+// GOOD
+globParent('C:/Program Files\\(x86\\)/*.ext') // 'C:/Program Files (x86)'
+```
+
+If you are using escape characters for a pattern without path parts (i.e.
+relative to `cwd`), prefix with `./` to avoid confusing glob-parent.
+
+```js
+// BAD
+globParent('foo \\[bar]') // 'foo '
+globParent('foo \\[bar]*') // 'foo '
+
+// GOOD
+globParent('./foo \\[bar]') // 'foo [bar]'
+globParent('./foo \\[bar]*') // '.'
 ```
 
 ## License
 
-[MIT](LICENSE)
+ISC
 
-[npm-image]: https://img.shields.io/npm/v/fresh.svg
-[npm-url]: https://npmjs.org/package/fresh
-[node-version-image]: https://img.shields.io/node/v/fresh.svg
-[node-version-url]: https://nodejs.org/en/
-[travis-image]: https://img.shields.io/travis/jshttp/fresh/master.svg
-[travis-url]: https://travis-ci.org/jshttp/fresh
-[coveralls-image]: https://img.shields.io/coveralls/jshttp/fresh/master.svg
-[coveralls-url]: https://coveralls.io/r/jshttp/fresh?branch=master
-[downloads-image]: https://img.shields.io/npm/dm/fresh.svg
-[downloads-url]: https://npmjs.org/package/fresh
+[expand-braces]: https://github.com/jonschlinkert/expand-braces
+[expand-brackets]: https://github.com/jonschlinkert/expand-brackets
+
+[downloads-image]: https://img.shields.io/npm/dm/glob-parent.svg
+[npm-url]: https://www.npmjs.com/package/glob-parent
+[npm-image]: https://img.shields.io/npm/v/glob-parent.svg
+
+[azure-pipelines-url]: https://dev.azure.com/gulpjs/gulp/_build/latest?definitionId=2&branchName=master
+[azure-pipelines-image]: https://dev.azure.com/gulpjs/gulp/_apis/build/status/glob-parent?branchName=master
+
+[travis-url]: https://travis-ci.org/gulpjs/glob-parent
+[travis-image]: https://img.shields.io/travis/gulpjs/glob-parent.svg?label=travis-ci
+
+[appveyor-url]: https://ci.appveyor.com/project/gulpjs/glob-parent
+[appveyor-image]: https://img.shields.io/appveyor/ci/gulpjs/glob-parent.svg?label=appveyor
+
+[coveralls-url]: https://coveralls.io/r/gulpjs/glob-parent
+[coveralls-image]: https://img.shields.io/coveralls/gulpjs/glob-parent/master.svg
+
+[gitter-url]: https://gitter.im/gulpjs/gulp
+[gitter-image]: https://badges.gitter.im/gulpjs/gulp.svg
